@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>bpershon lab6</title>
+
+<script type="text/javascript" src="gl-matrix-min.js"></script>
+<script type="text/javascript" src="simple-rotator.js"></script>
+<script type="text/javascript" src="lab6.js"></script>
+<script type="x-shader/x-vertex" id="vshader">
+	attribute vec3 coords;
+	attribute vec3 normal;  
+	uniform mat4 projection;
+	uniform mat4 modelview;
+	varying vec3 viewCoords;
+	varying vec3 vNormal;
+     
+	void main() {
+        vec4 eyeCoords = modelview * vec4(coords,1.0);
+        gl_Position = projection * eyeCoords;
+        viewCoords = eyeCoords.xyz;
+        vNormal = normal;
+	}
+</script>
+<script type="x-shader/x-fragment" id="fshader">
+     precision mediump float;
+     varying vec3 vCoords;
+     varying vec3 vNormal;
+     varying vec3 viewCoords;
+     uniform samplerCube skybox;
+	 uniform mat3 normalMatrix;
+     uniform mat3 invVT;
+     void main() {
+          	vec3 N = normalMatrix * vNormal;
+          	vec3 V = -viewCoords;
+			vec3 R = 2.0 * dot(V,N) * N - V;
+			R = invVT * R; 
+			gl_FragColor = textureCube(skybox, R);
+     }
+</script>
+
+<script type="x-shader/x-vertex" id="vshaderSB">
+     uniform mat4 projection;
+     uniform mat4 modelview;
+     attribute vec3 coords;
+     varying vec3 vCoords;
+     void main() {
+        vec4 eyeCoords = modelview * vec4(coords,1.0);
+        gl_Position = projection * eyeCoords;
+        vCoords = coords;//gl_Position.xyz;
+     }
+</script>
+<script type="x-shader/x-fragment" id="fshaderSB">
+     precision mediump float;
+     varying vec3 vCoords;
+     uniform samplerCube skybox;
+     void main() {
+          gl_FragColor = textureCube(skybox, vCoords);
+     }
+</script>
+<script type="text/javascript" src="basic-objects-IFS.js"></script>
+
+
+</head>
+
+<body onload="webGLStart();">
+<canvas width=700 height=700 id="gl-canvas" style="background-color:black"></canvas>
+
+	<h4> Geometry: </h4>
+	<button onclick="changeObject(0)"> Teapot </button>
+	<button onclick="changeObject(1)"> Macbook </button>
+
+
+</body>
+</html>
+
